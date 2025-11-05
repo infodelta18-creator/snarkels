@@ -37,12 +37,25 @@ export default function SelfVerificationModal({
         // Check if this is a request to our verification endpoint
         if (urlString.includes(verificationEndpoint) && options?.method === 'POST') {
           try {
+            console.log('=== FETCH INTERCEPTION ===');
+            console.log('Intercepting verification request to:', urlString);
+            console.log('Original body type:', typeof options?.body);
+            
             // Parse existing body and add userAddress
             const existingBody = options?.body ? JSON.parse(options.body as string) : {};
+            console.log('Original body keys:', Object.keys(existingBody));
+            console.log('Has attestationId:', !!existingBody.attestationId);
+            console.log('Has proof:', !!existingBody.proof);
+            console.log('Has publicSignals:', !!existingBody.publicSignals);
+            console.log('Has userContextData:', !!existingBody.userContextData);
+            
             const modifiedBody = {
               ...existingBody,
               userAddress: address
             };
+            
+            console.log('✓ Added userAddress to request:', address);
+            console.log('Modified body keys:', Object.keys(modifiedBody));
             
             // Create new options with modified body
             const modifiedOptions = {
@@ -50,10 +63,38 @@ export default function SelfVerificationModal({
               body: JSON.stringify(modifiedBody)
             };
             
-            console.log('Intercepted verification request, adding userAddress:', address);
-            return originalFetch(url, modifiedOptions);
+            const response = await originalFetch(url, modifiedOptions);
+            
+            // Log response for debugging
+            const responseClone = response.clone();
+            try {
+              const responseData = await responseClone.json();
+              console.log('=== VERIFICATION RESPONSE ===');
+              console.log('Status:', response.status);
+              console.log('Response data:', {
+                status: responseData.status,
+                result: responseData.result,
+                message: responseData.message,
+                error: responseData.error,
+                errorCode: responseData.errorCode,
+                step: responseData.step
+              });
+              
+              if (!response.ok || !responseData.result) {
+                console.error('✗ Verification failed in response');
+                console.error('Error details:', responseData);
+              } else {
+                console.log('✓ Verification successful');
+              }
+            } catch (e) {
+              console.warn('Could not parse response:', e);
+            }
+            
+            return response;
           } catch (e) {
-            console.error('Error intercepting fetch:', e);
+            console.error('✗ Error intercepting fetch:', e);
+            console.error('Error type:', e instanceof Error ? e.constructor.name : typeof e);
+            console.error('Error message:', e instanceof Error ? e.message : String(e));
             return originalFetch(...args);
           }
         }
@@ -106,7 +147,11 @@ export default function SelfVerificationModal({
   };
 
   const handleVerificationError = (error: any) => {
-    console.error('Verification failed:', error);
+    console.error('=== VERIFICATION ERROR CALLBACK ===');
+    console.error('Error object:', error);
+    console.error('Error type:', typeof error);
+    console.error('Error message:', error?.message || error?.toString() || String(error));
+    console.error('Error stack:', error?.stack || 'N/A');
     // You could show an error message to the user here
   };
 
