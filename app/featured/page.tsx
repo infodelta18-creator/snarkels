@@ -104,7 +104,7 @@ const FeaturedSnarkelCard = ({ snarkel }: { snarkel: Snarkel }) => {
           </div>
           
           <Link
-            href={`/join?snarkelCode=${snarkel.snarkelCode}`}
+            href={`/join?code=${snarkel.snarkelCode}`}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-semibold text-center transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             <Play className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />

@@ -4,9 +4,6 @@ const { privateKeyToAccount } = require('viem/accounts');
 const dotenv = require('dotenv');
 dotenv.config();
 
-// Required environment variables:
-// ADMIN_WALLET - Private key for admin wallet (used for socket authentication)
-// SOCKET_URL - Socket server URL (optional, defaults to localhost:4001)
 
 
 const prisma = new PrismaClient();
