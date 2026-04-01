@@ -146,3 +146,4 @@ export async function POST(request: NextRequest) {
         error: 'Failed to generate quiz. Please try again.' 
       }, { status: 500 });
     }
+}
