@@ -121,15 +121,23 @@ export async function POST(request: NextRequest) {
     // Parse the AI response
     let quizData;
     try {
-      // Convert result content to string and extract JSON
+      // 1. result yoki result.content mavjudligini tekshiramiz
+      if (!result || !result.content) {
+        throw new Error('AI provayderidan bo‘sh javob keldi');
+      }
+
+      // 2. Kontentni string ko'rinishiga keltiramiz
       const contentString = typeof result.content === 'string' 
         ? result.content 
         : JSON.stringify(result.content);
-      
-      const jsonMatch = contentString.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
+
+      // 3. Regex match natijasini o'zgaruvchiga olamiz (Xavfsiz usul)
+      const jsonMatch = contentString ? contentString.match(/\{[\s\S]*\}/) : null;
+
+      if (jsonMatch && jsonMatch[0]) {
         quizData = JSON.parse(jsonMatch[0]);
       } else {
+        console.error("AI javobida JSON topilmadi. Kelgan javob:", contentString);
         throw new Error('No JSON found in response');
       }
     } catch (parseError) {
@@ -138,16 +146,3 @@ export async function POST(request: NextRequest) {
         error: 'Failed to generate quiz. Please try again.' 
       }, { status: 500 });
     }
-
-    return NextResponse.json({
-      success: true,
-      quiz: quizData
-    });
-
-  } catch (error: any) {
-    console.error('Generate Snarkel error:', error);
-    return NextResponse.json({ 
-      error: error.message || 'Failed to generate quiz' 
-    }, { status: 500 });
-  }
-} 
