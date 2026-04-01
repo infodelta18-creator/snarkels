@@ -120,8 +120,7 @@ const nextConfig: NextConfig = {
   // Additional optimizations for development and production
   experimental: {
     // Enable React compiler for better performance
-   // reactCompiler: true,
-    
+   
     // Enable server components HMR cache for better performance
     serverComponentsHmrCache: true,
     
