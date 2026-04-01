@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     let prompt = '';
-    
+
     if (inputType === 'topic') {
       prompt = `Create a quiz about "${content}" with ${questionCount} multiple choice questions (5-10 questions). 
       
@@ -117,27 +117,19 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await askWithFallback(prompt);
-    
+
     // Parse the AI response
     let quizData;
     try {
-      // 1. result yoki result.content mavjudligini tekshiramiz
-      if (!result || !result.content) {
-        throw new Error('AI provayderidan bo‘sh javob keldi');
-      }
-
-      // 2. Kontentni string ko'rinishiga keltiramiz
+      // Convert result content to string and extract JSON
       const contentString = typeof result.content === 'string' 
         ? result.content 
         : JSON.stringify(result.content);
 
-      // 3. Regex match natijasini o'zgaruvchiga olamiz (Xavfsiz usul)
-      const jsonMatch = contentString ? contentString.match(/\{[\s\S]*\}/) : null;
-
-      if (jsonMatch && jsonMatch[0]) {
+      const jsonMatch = contentString.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
         quizData = JSON.parse(jsonMatch[0]);
       } else {
-        console.error("AI javobida JSON topilmadi. Kelgan javob:", contentString);
         throw new Error('No JSON found in response');
       }
     } catch (parseError) {
@@ -146,4 +138,16 @@ export async function POST(request: NextRequest) {
         error: 'Failed to generate quiz. Please try again.' 
       }, { status: 500 });
     }
-}
+
+    return NextResponse.json({
+      success: true,
+      quiz: quizData
+    });
+
+  } catch (error: any) {
+    console.error('Generate Snarkel error:', error);
+    return NextResponse.json({ 
+      error: error.message || 'Failed to generate quiz' 
+    }, { status: 500 });
+  }
+} 
