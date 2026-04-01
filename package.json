@@ -57,7 +57,7 @@
     "framer-motion": "^11.10.16",
     "langchain": "^0.3.30",
     "lucide-react": "^0.468.0",
-    "next": "15.4.5",
+    "next": "16.2.2",
     "qrcode.react": "^4.2.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
